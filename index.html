@@ -463,86 +463,70 @@ website to get an updated degree as a [=verifiable credential=].
       <h2>Automatic Refresh</h2>
 
       <p>
-The VerifiableCredentialRefreshService2021 protocol is used when an <a>issuer</a> uses a refresh
-prodedure that does not require an interactive exchange with the
-<a>holder</a> and is therefore, fully automatable. The auto refresh protocol
-consists of executing the following steps:
+The automatic refresh protocol is used when an <a>issuer</a> uses a refresh
+prodedure that can be automated with the <a>holder</a>'s software. The details
+of the protocol are defined in the
+<a data-cite="VCALM#initiating-interactions">
+Initiating Interactions section</a> specified of the [[[VCALM]]] specification.
       </p>
-
-      <ol>
-        <li>
-The <a>holder</a> software extracts the `refreshService.type`,
-`refreshService.url`, `refreshService.validFrom`, and
-`refreshService.validUntil` properties and saves them as <em>type</em>,
-<em>url</em>, <em>validFrom</em>,  and <em>validUntil</em>, respectively.
-        </li>
-        <li>
-If <em>type</em> does not equal `VerifiableCredentialRefreshService2021`,
-raise an `INVALID_REFRESH_ALGORITHM` exception.
-        </li>
-        <li>
-If <em>validFrom</em> is defined, but expresses a datetime that is later
-than the current datetime, raise a `REFRESH_NOT_ALLOWED` exception.
-        </li>
-        <li>
-If <em>validUntil</em> is defined, but expresses a datetime that is before
-the current datetime, raise a `REFRESH_NOT_ALLOWED` exception.
-        </li>
-        <li>
-If <em>url</em> is not defined, raise an `INVALID_URL` exception.
-        </li>
-        <li>
-Use an HTTP client to perform an HTTP GET on <em>url</em>. The response
-from the server MUST be a Verifiable Presentation Request as
-defined by the
-<a href="https://w3c-ccg.github.io/vcalm/#presenting">Presenting</a>
-section of the [[[VCALM]]] specification.
-        </li>
-      </ol>
 
       <p>
-The following examples elaborate upon the flow of messages after the final step
-above is executed:
+The example below demonstrates the requests and responses required to perform a
+automatic refresh. The [=holder=]'s wallet initiates a refresh using the
+`serviceEndpoint` URL noting that it supports both manual and automated
+workflows.
       </p>
 
       <pre class="example"
-        title="Step 1 (request to issuer): Initiate degree refresh workflow">
-GET /workflows/refresh-degree HTTP/1.1
+        title="Step 1 (holder->issuer): Holder initiates a refresh interaction">
+POST /workflows/refresh-degree/748?iuv=1 HTTP/1.1
 Host: university.example
-Content-Type: application/json
-Accept: application/json, */*
+Accept: application/json, text/html, */*
 Accept-Encoding: gzip, deflate
+
+{
+  "protocols": {
+    "inviteRequest": "https://wallet.example/workflows/123/exchanges/987/invite-request/response",
+    "vcalm": "https://wallet.example/workflows/123/exchanges/987"
+  }
+}
       </pre>
 
+      <p>
+The refresh service responds with an automatic refresh request:
+      </p>
+
       <pre class="example"
-        title="Step 2 (response from issuer): Verifiable Presentation Request">
-HTTP/1.1 200 OK
-Date: Fri, 14 Jun 2022 18:37:12 GMT
-Connection: keep-alive
+        title="Step 2 (issuer->holder): Issuer requests old university degree">
+POST /workflows/123/exchanges/987 HTTP/1.1
+Host: wallet.example
+Accept: application/json, text/html, */*
+Accept-Encoding: gzip, deflate
 
 {
   "verifiablePresentationRequest": {
     "query": [{
-        "type": "DIDAuth"
-      }, {
+        "type": "DIDAuthentication",
+        "acceptedMethods": [{"method": "example"}],
+        "acceptedCryptosuites": [{"cryptosuite": "ecdsa-rdfc-2019"}]
+        }, {
         "type": "QueryByExample",
         "credentialQuery": {
           "reason": "We need to see your existing University Degree credential.",
           "example": {
             "@context": [
-              "https://www.w3.org/2018/credentials/v1",
-              "https://www.w3.org/2018/credentials/examples/v1"
+              "https://www.w3.org/ns/credentials/v2",
+              "https://www.w3.org/ns/credentials/examples/v2"
             ],
             "type": "UniversityDegreeCredential"
           }
         }
       }],
       "challenge": "3182bdea-63d9-11ea-b6de-3b7c1404d57f",
-      "domain": "university.example",
+      "domain": "university.example"
       "interact": {
-        "service": [{
-          "type": "VerifiableCredentialRefreshService2021",
-          "serviceEndpoint": "https://university.example/active-flows/123456"
+        "protocols": [{
+          "vcalm": "https://university.example/workflows/275/exchanges/893"
         }]
       }
     }
@@ -550,125 +534,130 @@ Connection: keep-alive
 }
       </pre>
 
-      <p class="note">
-While the example above utilizes a Verifiable Presentation Request [VP-REQUEST],
-other types of equivalent presentation request formats, such as WACI/PeX, can be
-utilized (simultaneously or alternatively) based on the presentation request
-formats that are supported by the Issuer.
+      <p>
+The [=holder=]'s software then responds with the appropriate credential:
       </p>
 
       <pre class="example"
-        title="Step 3 (presentation to issuer): Provide Verifiable Presentation">
-POST /active-flows/123456 HTTP/1.1
+        title="Step 3 (holder->issuer): Holder presents old university degree">
+POST /workflows/275/exchanges/893 HTTP/1.1
 Host: university.example
 Content-Type: application/json
 Accept: application/json, */*
 Accept-Encoding: gzip, deflate
 
 {
-  "@context": [
-    "https://www.w3.org/2018/credentials/v1",
-    "https://www.w3.org/2018/credentials/examples/v1",
-    "https://w3id.org/security/suites/ed25519-2020/v1"
-  ],
-  "type": ["VerifiablePresentation"],
-  "holder": "did:example:ebfeb1f712ebc6f1c276e12ec21",
-  "verifiableCredential": [{
+  "verifiablePresentation": {
     "@context": [
-      "https://www.w3.org/2018/credentials/v1",
-      "https://www.w3.org/2018/credentials/examples/v1",
-      "https://w3id.org/security/suites/ed25519-2020/v1"
+      "https://www.w3.org/ns/credentials/v2",
+      "https://www.w3.org/ns/credentials/examples/v2",
+      "https://w3id.org/vc-refresh-service/v2rc1"
     ],
-    "id": "http://university.example/credentials/3732",
-    "type": [
-      "VerifiableCredential",
-      "UniversityDegreeCredential"
-    ],
-    "issuer": "https://university.example/issuers/14",
-    "validFrom": "2010-01-01T19:23:24Z",
-    "validUntil": "2022-01-01T19:23:24Z",
-    "credentialSubject": {
-      "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
-      "degree": {
-        "type": "BachelorDegree",
-        "name": "Bachelor of Science and Arts"
+    "type": ["VerifiablePresentation"],
+    "holder": "did:example:ebfeb1f712ebc6f1c276e12ec21",
+    "verifiableCredential": [{
+      "@context": [
+        "https://www.w3.org/ns/credentials/v2",
+        "https://www.w3.org/ns/credentials/examples/v2",
+        "https://w3id.org/vc-refresh-service/v2rc1"
+      ],
+      "id": "http://university.example/credentials/3732",
+      "type": [
+        "VerifiableCredential",
+        "UniversityDegreeCredential"
+      ],
+      "issuer": "https://university.example/issuers/14",
+      "validFrom": "2024-01-01T19:23:24Z",
+      "validUntil": "2034-01-01T19:23:24Z",
+      "credentialSubject": {
+        "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
+        "degree": {
+          "type": "BachelorDegree",
+          "name": "Bachelor of Science and Arts"
+        }
+      },
+      "refreshService": {
+        "type": "VerifiableCredentialInteractionService",
+        "serviceEndpoint": "https://university.example/refresh/92838?iuv=1",
+        "validFrom": "2024-09-01T19:23:24Z",
+        "validUntil": "2034-09-01T19:23:24Z"
       }
-    },
-    "refreshService": {
-      "type": "VerifiableCredentialRefreshService2021",
-      "url": "https://university.example/workflows/refresh-degree",
-      "validFrom": "2021-09-01T19:23:24Z"
-    },
+      "proof": {
+        "type": "DataIntegrityProof",
+        "cryptosuite": "ecdsa-rdfc-2019",
+        "created": "2025-01-05T17:59:45Z",
+        "verificationMethod": "https://university.example/issuers/14#key-1",
+        "proofPurpose": "assertionMethod",
+        "proofValue": "z2aArNcQKX9aqYK7GRZmV7c9xfGuwB5YAXhkYY9DTvLdTCQEsXaNpz1G
+                      ZL9XDXdFQGT27WB68e2Y3wo9k75rka8oo"
+      }
+    }],
     "proof": {
-      "type": "Ed25519Signature2020",
-      "created": "2021-12-05T17:59:45Z",
-      "verificationMethod": "https://university.example/issuers/14#key-1",
-      "proofPurpose": "assertionMethod",
-      "proofValue": "z2aArNcQKX9aqYK7GRZmV7c9xfGuwB5YAXhkYY9DTvLdTCQEsXaNpz1G
-                     ZL9XDXdFQGT27WB68e2Y3wo9k75rka8oo"
+      "type": "DataIntegrityProof",
+      "cryptosuite": "ecdsa-rdfc-2019",
+      "created": "2034-06-15T16:37:12Z",
+      "verificationMethod": "did:example:76e12ec712ebc6f1c221ebfeb1f#key-1",
+      "proofPurpose": "authentication",
+      "challenge": "3182bdea-63d9-11ea-b6de-3b7c1404d57f",
+      "domain": "university.example",
+      "proofValue": "z4aU6NSpnCvnjJqzAPw3cqJ1LKoWimEWxKz7StJYzwaZE2a3QAuK8vcq
+                    umwr6uabr7RshvjH1yTv1fTuhPUii1fN"
     }
-  }],
-  "proof": {
-    "type": "Ed25519Signature2020",
-    "created": "2022-06-15T16:37:12Z",
-    "verificationMethod": "did:example:76e12ec712ebc6f1c221ebfeb1f#key-1",
-    "proofPurpose": "authentication",
-    "challenge": "3182bdea-63d9-11ea-b6de-3b7c1404d57f",
-    "domain": "university.example",
-    "proofValue": "z4aU6NSpnCvnjJqzAPw3cqJ1LKoWimEWxKz7StJYzwaZE2a3QAuK8vcq
-                   umwr6uabr7RshvjH1yTv1fTuhPUii1fN"
   }
 }
       </pre>
 
       <pre class="example"
-        title="Step 4 (response from issuer): Re-issued Verifiable Credential">
+        title="Step 4 (issuer->holder): Issuer provides updated university degree">
 HTTP/1.1 200 OK
 Date: Fri, 14 Jun 2022 18:37:12 GMT
 Connection: keep-alive
 
 {
-  "@context": [
-    "https://www.w3.org/2018/credentials/v1",
-    "https://www.w3.org/2018/credentials/examples/v1"
-  ],
-  "type": ["VerifiablePresentation"],
-  "verifiableCredential": [{
+  "verifiablePresentation": {
     "@context": [
-      "https://www.w3.org/2018/credentials/v1",
-      "https://www.w3.org/2018/credentials/examples/v1",
-      "https://w3id.org/security/suites/ed25519-2020/v1"
+      "https://www.w3.org/ns/credentials/v2",
+      "https://www.w3.org/ns/credentials/examples/v2",
+      "https://w3id.org/vc-refresh-service/v2rc1"
     ],
-    "id": "http://university.example/credentials/3732",
-    "type": [
-      "VerifiableCredential",
-      "UniversityDegreeCredential"
-    ],
-    "issuer": "https://university.example/issuers/14",
-    "validFrom": "2010-01-01T19:23:24Z",
-    "validUntil": "2027-06-14T18:37:12Z",
-    "credentialSubject": {
-      "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
-      "degree": {
-        "type": "BachelorDegree",
-        "name": "Bachelor of Science and Arts"
+    "type": ["VerifiablePresentation"],
+    "verifiableCredential": [{
+      "@context": [
+        "https://www.w3.org/ns/credentials/v2",
+        "https://www.w3.org/ns/credentials/examples/v2",
+        "https://w3id.org/vc-refresh-service/v2rc1"
+      ],
+      "id": "http://university.example/credentials/3732",
+      "type": [
+        "VerifiableCredential",
+        "UniversityDegreeCredential"
+      ],
+      "issuer": "https://university.example/issuers/14",
+      "validFrom": "2024-01-01T19:23:24Z",
+      "validUntil": "2044-06-14T18:37:12Z",
+      "credentialSubject": {
+        "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
+        "degree": {
+          "type": "BachelorDegree",
+          "name": "Bachelor of Science and Arts"
+        }
+      },
+      "refreshService": {
+        "type": "VerifiableCredentialInteractionService",
+        "serviceEndpoint": "https://university.example/refresh/892349?iuv=1",
+        "validFrom": "2044-06-01T19:23:24Z"
+      },
+      "proof": {
+        "type": "DataIntegrityProof",
+        "cryptosuite": "ecdsa-rdfc-2019",
+        "created": "2034-06-14T18:37:12Z",
+        "verificationMethod": "https://university.example/issuers/14#key-1",
+        "proofPurpose": "assertionMethod",
+        "proofValue": "z2aArNcQKX9aqYK7GRZmV7c9xfGuwB5YAXhkYY9DTvLdTCQEsXaNpz1G
+                      ZL9XDXdFQGT27WB68e2Y3wo9k75rka8oo"
       }
-    },
-    "refreshService": {
-      "type": "VerifiableCredentialRefreshService2021",
-      "url": "https://university.example/workflows/refresh-degree",
-      "validFrom": "2027-03-14T19:23:24Z",
-      "validUntil": "2027-07-14T19:23:24Z"
-    },
-    "proof": {
-      "type": "Ed25519Signature2020",
-      "created": "2022-06-14T18:37:12Z",
-      "verificationMethod": "https://university.example/issuers/14#key-1",
-      "proofPurpose": "assertionMethod",
-      "proofValue": "z2aArNcQKX9aqYK7GRZmV7c9xfGuwB5YAXhkYY9DTvLdTCQEsXaNpz1G
-                     ZL9XDXdFQGT27WB68e2Y3wo9k75rka8oo"
-    }
-  }]
+    }]
+  }
 }
       </pre>
 
