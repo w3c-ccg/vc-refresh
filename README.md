@@ -1,12 +1,12 @@
 
-# Verifiable Credential Refresh 2021
+# Verifiable Credential Refresh
 
-This is the repository of the Verifiable Credential Refresh 2021
+This is the repository for the Verifiable Credential Refresh
 specification, developed by the
-[W3C Credentials Community Group](https://www.w3.org/2019/did-wg/).
+[W3C Credentials Community Group](https://w3c-ccg.org/).
 
 The Editors’ draft of the specification is
-[available online](https://w3c-ccg.github.io/vc-refresh-2021/).
+[available online](https://w3c-ccg.github.io/vc-refresh/).
 
 ## Contributing to the Repository
 
