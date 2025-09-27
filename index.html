@@ -545,10 +545,9 @@ The refresh service responds with an automatic refresh request:
 
       <pre class="example"
         title="Step 4 (issuer->holder): Issuer requests old university degree">
-POST /workflows/748/exchanges/987 HTTP/1.1
-Host: wallet.example
-Accept: application/json, text/html, */*
-Accept-Encoding: gzip, deflate
+HTTP/1.1 200 OK
+Date: Fri, 27 Sep 2025 12:03:57 GMT
+Content-Type: application/json
 
 {
   "verifiablePresentationRequest": {
