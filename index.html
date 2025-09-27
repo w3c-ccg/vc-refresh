@@ -423,7 +423,7 @@ workflows.
 
       <pre class="example"
         title="Step 1 (holder->issuer): Initiate a refresh interaction">
-GET /refresh/3732 HTTP/1.1
+GET /refresh/3732?iuv=1 HTTP/1.1
 Host: university.example
 Accept: application/json
       </pre>
@@ -458,7 +458,6 @@ Accept: application/json
 
 {}
       </pre>
-
 
       <p>
 The [=issuer=] provides a `redirectUrl` which is a signal to the wallet software
@@ -503,18 +502,41 @@ workflows.
       </p>
 
       <pre class="example"
-        title="Step 1 (holder->issuer): Holder initiates a refresh interaction">
-POST /workflows/refresh-degree/748?iuv=1 HTTP/1.1
+        title="Step 1 (holder->issuer): Initiate a refresh interaction">
+GET /workflows/refresh-degree/748?iuv=1 HTTP/1.1
 Host: university.example
-Accept: application/json, text/html, */*
-Accept-Encoding: gzip, deflate
+Accept: application/json
+      </pre>
+
+      <p>
+The refresh service responds with a [[[VCALM]]]
+<a data-cite="VCALM#dfn-exchange">exchange</a> that will provide next steps.
+      </p>
+
+      <pre class="example"
+        title="Step 2 (issuer->holder): Provide exchange URL">
+HTTP/1.1 200 OK
+Date: Fri, 27 Sep 2025 12:03:57 GMT
+Content-Type: application/json
 
 {
   "protocols": {
-    "inviteRequest": "https://wallet.example/workflows/123/exchanges/987/invite-request/response",
-    "vcalm": "https://wallet.example/workflows/123/exchanges/987"
+    "vcapi": "https://university.example/workflows/748/exchanges/987"
   }
 }
+      </pre>
+
+      <p>
+The [=holder=] starts the exchange by posting an empty object.
+      </p>
+
+      <pre class="example"
+        title="Step 3 (holder->issuer): Initiate exchange to perform an automated refresh">
+POST /workflows/748/exchanges/987 HTTP/1.1
+Host: university.example
+Accept: application/json
+
+{}
       </pre>
 
       <p>
@@ -522,8 +544,8 @@ The refresh service responds with an automatic refresh request:
       </p>
 
       <pre class="example"
-        title="Step 2 (issuer->holder): Issuer requests old university degree">
-POST /workflows/123/exchanges/987 HTTP/1.1
+        title="Step 4 (issuer->holder): Issuer requests old university degree">
+POST /workflows/748/exchanges/987 HTTP/1.1
 Host: wallet.example
 Accept: application/json, text/html, */*
 Accept-Encoding: gzip, deflate
@@ -549,11 +571,6 @@ Accept-Encoding: gzip, deflate
       }],
       "challenge": "3182bdea-63d9-11ea-b6de-3b7c1404d57f",
       "domain": "university.example"
-      "interact": {
-        "protocols": [{
-          "vcalm": "https://university.example/workflows/275/exchanges/893"
-        }]
-      }
     }
   }
 }
@@ -564,8 +581,8 @@ The [=holder=]'s software then responds with the appropriate credential:
       </p>
 
       <pre class="example"
-        title="Step 3 (holder->issuer): Holder presents old university degree">
-POST /workflows/275/exchanges/893 HTTP/1.1
+        title="Step 5 (holder->issuer): Holder presents old university degree">
+POST /workflows/748/exchanges/987 HTTP/1.1
 Host: university.example
 Content-Type: application/json
 Accept: application/json, */*
@@ -633,7 +650,7 @@ Accept-Encoding: gzip, deflate
       </pre>
 
       <pre class="example"
-        title="Step 4 (issuer->holder): Issuer provides updated university degree">
+        title="Step 6 (issuer->holder): Issuer provides updated university degree">
 HTTP/1.1 200 OK
 Date: Fri, 14 Jun 2022 18:37:12 GMT
 Connection: keep-alive
