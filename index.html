@@ -342,7 +342,7 @@ section to specify a manual refresh service:
   },
   <span class="highlight">"refreshService": {
     "type": "VerifiableCredentialInteractionService",
-    "serviceEndpoint": "https://university.example/refresh/3732?iuv=1",
+    "serviceEndpoint": "https://university.example/interactions/3732?iuv=1",
     "validFrom": "2034-09-01T19:23:24Z"
   }</span>
 }
@@ -375,7 +375,7 @@ section to specify an automatic refresh service:
   },
   <span class="highlight">"refreshService": {
     "type": "VerifiableCredentialInteractionService",
-    "serviceEndpoint": "https://university.example/workflows/refresh-degree/748?iuv=1",
+    "serviceEndpoint": "https://university.example/interactions/refresh-degree/748?iuv=1",
     "validFrom": "2033-09-01T19:23:24Z",
     "validUntil": "2034-01-01T19:23:24Z"
   }</span>
@@ -384,7 +384,7 @@ section to specify an automatic refresh service:
 
     <p>
 Performing an HTTP POST with an empty object on the
-`https://university.example/workflows/refresh-degree/748?iuv=1`
+`https://university.example/interactions/refresh-degree/748?iuv=1`
 will initiate a presentation request using the [[[VCALM]]] specification.
     </p>
 
@@ -423,7 +423,7 @@ workflows.
 
       <pre class="example"
         title="Step 1 (holder->issuer): Initiate a refresh interaction">
-GET /refresh/3732?iuv=1 HTTP/1.1
+GET /interactions/3732?iuv=1 HTTP/1.1
 Host: university.example
 Accept: application/json
       </pre>
@@ -503,7 +503,7 @@ workflows.
 
       <pre class="example"
         title="Step 1 (holder->issuer): Initiate a refresh interaction">
-GET /workflows/refresh-degree/748?iuv=1 HTTP/1.1
+GET /interactions/refresh-degree/748?iuv=1 HTTP/1.1
 Host: university.example
 Accept: application/json
       </pre>
@@ -620,7 +620,7 @@ Accept-Encoding: gzip, deflate
       },
       "refreshService": {
         "type": "VerifiableCredentialInteractionService",
-        "serviceEndpoint": "https://university.example/refresh/92838?iuv=1",
+        "serviceEndpoint": "https://university.example/interactions/92838?iuv=1",
         "validFrom": "2024-09-01T19:23:24Z",
         "validUntil": "2034-09-01T19:23:24Z"
       }
@@ -686,7 +686,7 @@ Connection: keep-alive
       },
       "refreshService": {
         "type": "VerifiableCredentialInteractionService",
-        "serviceEndpoint": "https://university.example/refresh/892349?iuv=1",
+        "serviceEndpoint": "https://university.example/interactions/892349?iuv=1",
         "validFrom": "2044-06-01T19:23:24Z"
       },
       "proof": {
