@@ -375,7 +375,7 @@ section to specify an automatic refresh service:
   },
   <span class="highlight">"refreshService": {
     "type": "VerifiableCredentialInteractionService",
-    "serviceEndpoint": "https://university.example/interactions/refresh-degree/748?iuv=1",
+    "serviceEndpoint": "https://university.example/interactions/748?iuv=1",
     "validFrom": "2033-09-01T19:23:24Z",
     "validUntil": "2034-01-01T19:23:24Z"
   }</span>
@@ -384,7 +384,7 @@ section to specify an automatic refresh service:
 
     <p>
 Performing an HTTP POST with an empty object on the
-`https://university.example/interactions/refresh-degree/748?iuv=1`
+`https://university.example/interactions/748?iuv=1`
 will initiate a presentation request using the [[[VCALM]]] specification.
     </p>
 
@@ -503,7 +503,7 @@ workflows.
 
       <pre class="example"
         title="Step 1 (holder->issuer): Initiate a refresh interaction">
-GET /interactions/refresh-degree/748?iuv=1 HTTP/1.1
+GET /interactions/748?iuv=1 HTTP/1.1
 Host: university.example
 Accept: application/json
       </pre>
