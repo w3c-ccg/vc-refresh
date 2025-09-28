@@ -274,9 +274,9 @@ defined in that specification.
       <h2>The `refreshService` Property</h2>
 
       <p>
-The refresh data model in this specification is expressed via the
-<code>refreshService</code> property in a Verifiable Credential. The table
-below provides the structure of the refresh service description.
+The refresh data model in this specification can be expressed directly on a
+[=verifiable credential=] via  the <code>refreshService</code> property. The
+table below provides the structure of the refresh service description.
       </p>
 
       <table class="simple">
@@ -395,6 +395,78 @@ will initiate a presentation request using the [[[VCALM]]] specification.
 
     <section>
       <h2>The `RefreshCredential` Class</h2>
+
+      <p>
+The refresh data model in this specification can also be expressed
+as a [=verifiable credential=] that can be used to refresh one or more
+other [=verifiable credentials=] via the <code>RefreshCredential</code> class.
+The table below provides the structure of the `RefreshCredential` class.
+      </p>
+
+      <table class="simple">
+        <thead>
+          <tr>
+            <th style="white-space: nowrap">Property</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+          <tr>
+            <td>type</td>
+            <td>
+A set of strings that MUST include `VerifiableCredential` and
+`RefreshCredential`.
+            </td>
+          </tr>
+            <td>credentialSubject</td>
+            <td>
+One or more objects that identify [=verifiable credentials=]. Identification
+mechanisms can include properties such as `id` or `digestMultibase`.
+            </td>
+          </tr>
+          <tr>
+            <td>refreshService</td>
+            <td>
+An object that MUST conform to the rules in Section
+[[[#the-refreshservice-property]]].
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+The example below demonstrates the use of the data model described in this
+section to specify a `RefreshCredential`:
+      </p>
+
+      <pre class="example nohighlight"
+        title="Verifiable Credential specifying a RefreshCredential">
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://www.w3.org/ns/credentials/examples/v2",
+    "https://w3id.org/vc-refresh-service/v2rc1"
+  ],
+  "type": ["VerifiableCredential", <span class="highlight">"RefreshCredential"</span>],
+  "issuer": "https://university.example/issuers/14",
+  "validFrom": "2025-01-01T19:23:24Z",
+  "validUntil": "2035-01-01T19:23:24Z",
+  <span class="highlight">"credentialSubject": [{
+    "id": "https://university.example/credentials/123"
+  }, {
+    "digestMultibase": "uEiBdApsaWNlbnNpbmcgY29tbWl0bWVudC4KCklmIHlvdSB"
+  }, {
+    "digestMultibase": "uEiBbSBvbmUgcGVyCmxpbmUgYXMgZm9sbG93czoKCmBgYAo"
+  }],
+  "refreshService": {
+    "type": "VerifiableCredentialInteractionService",
+    "serviceEndpoint": "https://university.example/interactions/531?iuv=1",
+    "validFrom": "2034-09-01T19:23:24Z"
+  }</span>
+}
+      </pre>
+
     </section>
 
   </section>
