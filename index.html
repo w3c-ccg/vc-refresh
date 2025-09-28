@@ -270,58 +270,61 @@ This specification utilizes the Verifiable Credentials data model
 defined in that specification.
     </p>
 
-    <p>
+    <section>
+      <h2>The `refreshService` Property</h2>
+
+      <p>
 The refresh data model in this specification is expressed via the
 <code>refreshService</code> property in a Verifiable Credential. The table
 below provides the structure of the refresh service description.
-    </p>
+      </p>
 
-    <table class="simple">
-      <thead>
-        <tr>
-          <th style="white-space: nowrap">Property</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-        <tr>
-          <td>type</td>
-          <td>
+      <table class="simple">
+        <thead>
+          <tr>
+            <th style="white-space: nowrap">Property</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+          <tr>
+            <td>type</td>
+            <td>
 A REQUIRED string that MUST be set to `VerifiableCredentialInteractionService`.
-          </td>
-        </tr>
-          <td>serviceEndpoint</td>
-          <td>
+            </td>
+          </tr>
+            <td>serviceEndpoint</td>
+            <td>
 A REQUIRED URL string, as defined by the <a
 data-cite="VCALM#interaction-url-format">Interaction URL section</a> of the
 [[[VCALM]]] specification, that MUST be used to initiate a credential refresh.
-          </td>
-        </tr>
-        <tr>
-          <td>validFrom</td>
-          <td>
+            </td>
+          </tr>
+          <tr>
+            <td>validFrom</td>
+            <td>
 An OPTIONAL [[XMLSCHEMA11-2]] datetime value that specifies the earliest moment
 in time that a refresh can be performed.
-          </td>
-        </tr>
-        <tr>
-          <td>validUntil</td>
-          <td>
+            </td>
+          </tr>
+          <tr>
+            <td>validUntil</td>
+            <td>
 An OPTIONAL [[XMLSCHEMA11-2]] datetime value that specifies the latest moment
 in time that a refresh can be performed.
-          </td>
-        </tr>
-      </tbody>
-    </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-    <p>
+      <p>
 The example below demonstrates the use of the data model described in this
 section to specify a manual refresh service:
-    </p>
+      </p>
 
-    <pre class="example nohighlight"
-      title="Verifiable Credential specifying a manual credential refresh">
+      <pre class="example nohighlight"
+        title="Verifiable Credential specifying a manual credential refresh">
 {
   "@context": [
     "https://www.w3.org/ns/credentials/v2",
@@ -346,15 +349,15 @@ section to specify a manual refresh service:
     "validFrom": "2034-09-01T19:23:24Z"
   }</span>
 }
-    </pre>
+      </pre>
 
-    <p>
+      <p>
 The example below demonstrates the use of the data model described in this
 section to specify an automatic refresh service:
-    </p>
+      </p>
 
-    <pre class="example nohighlight"
-      title="Verifiable Credential specifying an automatic credential refresh">
+      <pre class="example nohighlight"
+        title="Verifiable Credential specifying an automatic credential refresh">
 {
   "@context": [
     "https://www.w3.org/ns/credentials/v2",
@@ -380,15 +383,19 @@ section to specify an automatic refresh service:
     "validUntil": "2034-01-01T19:23:24Z"
   }</span>
 }
-    </pre>
+      </pre>
 
-    <p>
+      <p>
 Performing an HTTP POST with an empty object on the
 `https://university.example/interactions/748?iuv=1`
 will initiate a presentation request using the [[[VCALM]]] specification.
-    </p>
+      </p>
 
-  </section>
+    </section>
+
+    <section>
+      <h2>The `RefreshCredential` Class</h2>
+    </section>
 
   </section>
 
